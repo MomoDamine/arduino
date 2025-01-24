@@ -1,5 +1,5 @@
 #include <SoftwareSerial.h>
-SoftwareSerial xbee(0, 1);
+SoftwareSerial xbee(3, 4);
 int count;
  
 void setup()
