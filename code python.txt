@@ -1,0 +1,28 @@
+import serial
+
+# Configuration du port série pour le module XBee
+XBEE_PORT = "/dev/serial0"  # Assurez-vous que votre port série est correct
+BAUD_RATE = 9600
+
+try:
+    # Ouverture de la connexion série avec XBee
+    xbee = serial.Serial(XBEE_PORT, BAUD_RATE, timeout=1)
+    print("Connexion avec XBee établie. En attente de données...")
+
+    while True:
+        # Lecture des données reçues
+        data = xbee.readline().decode('utf-8').strip()
+        
+        if data:
+            print("Données reçues :", data)
+
+except serial.SerialException as e:
+    print(f"Erreur : Impossible d'ouvrir le port série - {e}")
+
+except KeyboardInterrupt:
+    print("\nArrêt du programme.")
+
+finally:
+    if 'xbee' in locals() and xbee.is_open:
+        xbee.close()
+        print("Connexion XBee fermée.")
