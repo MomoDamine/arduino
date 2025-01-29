@@ -1,0 +1,44 @@
+import serial
+import paho.mqtt.client as mqtt
+
+# Configuration XBee (assurez-vous que le port est correct)
+XBEE_PORT = "/dev/serial0"
+BAUD_RATE = 9600
+
+# Configuration du serveur MQTT (Mosquitto)
+MQTT_BROKER = "localhost"  # Si Mosquitto est sur le Raspberry Pi
+MQTT_PORT = 1883
+MQTT_TOPIC = "capteurs/dht11"
+
+# Initialisation de la connexion MQTT
+client = mqtt.Client()
+client.connect(MQTT_BROKER, MQTT_PORT, 60)
+
+try:
+    # Connexion au XBee
+    xbee = serial.Serial(XBEE_PORT, BAUD_RATE, timeout=1)
+    print("Connexion avec XBee établie. En attente de données...")
+
+    while True:
+        # Lecture des données reçues
+        data = xbee.readline().decode('utf-8').strip()
+
+        if data:
+            print("Données reçues :", data)
+
+            # Envoi sur le serveur Mosquitto
+            client.publish(MQTT_TOPIC, data)
+            print("Donnée envoyée sur MQTT :", data)
+
+except serial.SerialException as e:
+    print(f"Erreur : Impossible d'ouvrir le port série - {e}")
+
+except KeyboardInterrupt:
+    print("\nArrêt du programme.")
+
+finally:
+    if 'xbee' in locals() and xbee.is_open:
+        xbee.close()
+        print("Connexion XBee fermée.")
+    client.disconnect()
+    print("Déconnexion du serveur MQTT.")
